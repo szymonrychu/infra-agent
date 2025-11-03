@@ -368,7 +368,7 @@ async def _router_tool(category: str) -> List[OpenAITool]:
 router = OpenAITool(
     function=OpenAIFunction(
         name="route_tools",
-        description="Get Kubernetes pod container logs",
+        description="Main router tool to select category of tools to use",
         parameters=OpenAIToolParameter(
             description="Category of the tools to route to",
             properties={
