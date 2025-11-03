@@ -79,6 +79,7 @@ async def _handle_tool_calls(
 ) -> Tuple[List[OpenAIMessage], List[OpenAITool]] | None:
     messages = []
     _tools = [router] + tools
+    logger.info(f"Available tools: [{','.join([call.function.name for call in tool_calls or []])}]")
     for tool_call in tool_calls or []:
         parsed_args = json.loads(tool_call.function.arguments)
 
@@ -168,7 +169,7 @@ async def gpt_query(
     if not messages and system_prompt:
         messages.append(OpenAIMessage(role="developer", content=system_prompt.format(**kwargs)))
     messages.append(OpenAIMessage(role="user", content=prompt.format(**kwargs)))
-    response_message = await __gpt_query(messages, model)
+    response_message = await __gpt_query(messages, model, [router])
     if response_message and response_message.content:
         logger.info(f"assistant: '{response_message.content}'")
     if not response_message:
