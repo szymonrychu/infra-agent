@@ -57,13 +57,14 @@ jobs:
 
       - name: Tag existing container for release
         run: |
+          echo '${{ secrets.GL_REGISTRY_PASSWORD }}' | docker login -u ${{ secrets.GL_REGISTRY_USER }} --password-stdin https://gitlab.com/
           set -e
-          docker pull ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }}
-          docker tag ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }} ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:${{ steps.prep.outputs.container_version }}
-          docker push ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:${{ steps.prep.outputs.container_version }}
+          docker pull registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }}
+          docker tag registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }} registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:${{ steps.prep.outputs.container_version }}
+          docker push registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:${{ steps.prep.outputs.container_version }}
 
-          docker tag ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }} ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:latest
-          docker push ghcr.io/${{ github.repository_owner }}/${CONTAINER_NAME}:latest
+          docker tag registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:${{ steps.prep.outputs.short_sha }} registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:latest
+          docker push registry.gitlab.com/szymonrychu/containers/${CONTAINER_NAME}:latest
 
       - name: Package and upload charts
         run: |
