@@ -80,7 +80,7 @@ async def gitlab_webhook(payload: GitlabWebhookPayload) -> Response:
             follow_up_prompt,
             messages,
             model=settings.OPENAI_MODEL,
-            mr=payload.object_attributes.model_dump(exclude_none=True),
+            merge_request=payload.object_attributes.model_dump(exclude_none=True),
         )
         return Response(
             json.dumps(result.model_dump(exclude_none=True)),

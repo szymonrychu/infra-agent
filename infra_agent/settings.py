@@ -48,20 +48,19 @@ class Settings(BaseSettings):
     GITLAB_URL: Union[AnyUrl, IPvAnyAddress] = "https://gitlab.com"
     GITLAB_TOKEN: str
     GITLAB_HELMFILE_PROJECT_PATH: str = "infrastructure/helmfile"
-    GITLAB_WEBHOOK_PROMPT_FORMAT: str = """
-Analyze the merge request and decide the best course of action to ensure the pipelines are healthy.
+    GITLAB_WEBHOOK_PROMPT_FORMAT: str = "{merge_request}"
+    GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT: str = """
+You are a autonomous DevOps engineer, managing Gitlab repositories and making sure CI/CD pipelines are
+healthy.
+You received a webhook event from Gitlab regarding a merge request, please analyze it, it's description and changes
+and decide the best course of action to ensure the pipelines are healthy.
 In case you need more information to proceed, use the available tools to get it.
 If you need to perform an action, use the available tools to do so.
 Always think step by step.
 """
-    GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT: str = """
-You are a autonomous DevOps engineer, managing Gitlab repositories and making sure CI/CD pipelines are
-healthy.
-You received a webhook event from Gitlab regarding a merge request.
-"""
     GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT: str = """
-If the solution was provided and pipelines can be considered as healthy answer "RESOLVED" and avoid any other comments or formatting.
-Otherwise, get back to reasoning and try to use provided actions.
+If the merge request can be considered as healthy and pipelines are passing answer use provided tool to approve and merge it.
+If not please get back to reasoning and try to use provided actions to fix the problems.
 If there is a tool provided for something, use it without asking form confirmation.
 to get more informations that are necessary to continue reasoning or resolve the problem.
 If there is any spefic tool missing answer "MISSING FUNCTION: <description of missing tool>".

@@ -54,6 +54,117 @@ spec:
           readinessProbe:
             tcpSocket:
               port: http
+          env:
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: PORT
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: LOG_LEVEL
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: DEBUG
+            - name: LOG_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: LOG_FORMAT
+            - name: SSL_KEY_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: SSL_KEY_PATH
+            - name: SSL_CERT_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: SSL_CERT_PATH
+            - name: GITLAB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GITLAB_URL
+            - name: GITLAB_HELMFILE_PROJECT_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GITLAB_HELMFILE_PROJECT_PATH
+            - name: GITLAB_WEBHOOK_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GITLAB_WEBHOOK_PROMPT_FORMAT
+            - name: GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT
+            - name: GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
+            - name: GRAFANA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_URL
+            - name: GRAFANA_ORG_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_ORG_ID
+            - name: GRAFANA_PROMETHEUS_DATASOURCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_PROMETHEUS_DATASOURCE_NAME
+            - name: GRAFANA_WEBHOOK_SYSTEM_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_WEBHOOK_SYSTEM_PROMPT_FORMAT
+            - name: GRAFANA_WEBHOOK_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_WEBHOOK_PROMPT_FORMAT
+            - name: GRAFANA_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-config
+                  key: GRAFANA_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
+            - name: OPENAI_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-secrets
+                  key: OPENAI_MODEL
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-secrets
+                  key: OPENAI_API_KEY
+            - name: GRAFANA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-secrets
+                  key: GRAFANA_API_KEY
+            - name: GITLAB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "infra-agent.fullname" . }}-secrets
+                  key: GITLAB_TOKEN
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
