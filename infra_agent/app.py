@@ -1,7 +1,7 @@
 import json
 import logging
 
-from fastapi import FastAPI, Response
+from fastapi import Depends, FastAPI, Request, Response
 
 from infra_agent.models.gl import GitlabWebhookPayload
 from infra_agent.models.grafana import GrafanaWebhookPayload
@@ -23,6 +23,17 @@ logger = logging.getLogger("uvicorn.access")
 logger.addFilter(EndpointFilter())
 
 app = FastAPI()
+
+
+async def get_body(request: Request):
+    bytes = await request.body()
+    return bytes.decode("utf-8")
+
+
+@app.post("/debug")
+def input_request(data: str = Depends(get_body)):
+    print(data)
+    return Response("{}", status_code=200)
 
 
 @app.get("/healthz/live")
