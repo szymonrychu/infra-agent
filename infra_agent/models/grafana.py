@@ -21,7 +21,7 @@ class Alert(BaseModel):
     silenceURL: HttpUrl
     dashboardURL: HttpUrl | None = None
     panelURL: HttpUrl | None = None
-    values: Dict[str, float]
+    values: Dict[str, float] = Field(default_factory=dict)
 
 
 class GrafanaAlertsSumary(BaseModel):
@@ -50,8 +50,8 @@ class GrafanaWebhookPayload(BaseModel):
     async def summary(self) -> List[dict]:
         return [
             GrafanaAlertsSumary(
-                description=alert.annotations.get("description", {}),
-                summary=alert.annotations.get("summary", {}),
+                description=alert.annotations.get("description", ""),
+                summary=alert.annotations.get("summary", ""),
                 values=alert.values,
                 labels=alert.labels,
             ).model_dump(exclude_none=True)
