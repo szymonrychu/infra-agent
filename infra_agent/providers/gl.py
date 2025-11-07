@@ -91,41 +91,6 @@ async def create_merge_request_from_branch(
     )
 
 
-class GitlabMergeRequestFactory:
-    def __init__(self):
-        self.__last_merge_request = None
-
-    async def start_merge_request(self, title: str, description: str):
-        self.__last_merge_request = GitlabMergeRequest(
-            title=title, description=description, target_branch="main", source_branch="ai-test"
-        )
-
-    async def add_file_to_merge_request(self, file_path: str, file_contents: str):
-        if not self.__last_merge_request:
-            raise PromptToolError(
-                message="It's not possible to add files to merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first!",
-                inputs={"file_path": file_path, "file_contents": file_contents},
-                tool_name="add_file_to_merge_request",
-            )
-        await self.__last_merge_request.add_files(file_path, file_contents)
-
-    async def commit_and_push_merge_request(self, commit_message: str):
-        if not self.__last_merge_request:
-            raise PromptToolError(
-                message="It's not possible to add files to merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first!",
-                inputs={"commit_message": commit_message},
-                tool_name="commit_and_push_merge_request",
-            )
-        if not self.__last_merge_request.merge_request_files:
-            raise PromptToolError(
-                message="It's not possible to push empty merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first, then add file updates using `add_file_to_merge_request` tool!",
-                inputs={"commit_message": commit_message},
-                tool_name="commit_and_push_merge_request",
-            )
-        await self.__last_merge_request.commit_and_push(commit_message)
-        self.__last_merge_request.merge_request_files = {}
-
-
 async def create_merge_request(
     merge_request_branch: str, commit_message: str, title: str, description: str, files_updated: dict[str, str]
 ):
@@ -248,3 +213,88 @@ async def list_files_in_repository(branch: str, path: str = "") -> List[GitlabFi
             )
         )
     return result
+
+
+class GitlabMergeRequestFactory:
+    def __init__(self):
+        self.__last_merge_request = None
+        self.__last_merge_request_file_list = {}
+
+    async def start_merge_request(self, title: str, description: str):
+        self.__last_merge_request = GitlabMergeRequest(
+            title=title, description=description, target_branch="main", source_branch="ai-test"
+        )
+
+    async def add_file_to_merge_request(self, file_path: str, file_contents: str):
+        if not self.__last_merge_request:
+            raise PromptToolError(
+                message="It's not possible to add files to merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first!",
+                inputs={"file_path": file_path, "file_contents": file_contents},
+                tool_name="add_file_to_merge_request",
+            )
+        self.__last_merge_request_file_list[file_path] = file_contents
+
+    async def commit_and_push_merge_request(self, commit_message: str):
+        if not self.__last_merge_request:
+            raise PromptToolError(
+                message="It's not possible to add files to merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first!",
+                inputs={"commit_message": commit_message},
+                tool_name="commit_and_push_merge_request",
+            )
+        if not self.__last_merge_request_file_list:
+            raise PromptToolError(
+                message="It's not possible to push empty merge request if it's not created yet! run `start_merge_request` tool with `title` and `description` parameters first, then add file updates using `add_file_to_merge_request` tool!",
+                inputs={"commit_message": commit_message},
+                tool_name="commit_and_push_merge_request",
+            )
+
+        project = gl.projects.get(settings.GITLAB_HELMFILE_PROJECT_PATH)
+        existing_files = [f.file_path for f in await list_files_in_repository(self.__last_merge_request.source_branch)]
+        commit_actions = []
+        for file_path, file_contents in self.__last_merge_request_file_list.items():
+            commit_actions.append(
+                {
+                    "action": "update" if file_path in existing_files else "create",
+                    "file_path": file_path,
+                    "content": file_contents,
+                }
+            )
+        try:
+            project.commits.create(
+                {
+                    "commit_message": commit_message,
+                    "author_email": "ai",
+                    "author_name": "ai",
+                    "actions": commit_actions,
+                    "branch": self.__last_merge_request.target_branch,
+                    "start_branch": self.__last_merge_request.source_branch,
+                }
+            )
+        except Exception as e:
+            raise PromptToolError(
+                message=f"Problem creating commit! {e}",
+                tool_name="create_merge_request",
+                inputs={
+                    "commit_message": commit_message,
+                },
+            )
+
+        try:
+            project.mergerequests.create(
+                {
+                    "source_branch": self.__last_merge_request.target_branch,
+                    "target_branch": self.__last_merge_request.source_branch,
+                    "title": self.__last_merge_request.title,
+                    "description": self.__last_merge_request.description,
+                    "labels": "ai,automerge",
+                }
+            )
+        except Exception as e:
+            raise PromptToolError(
+                message=f"Problem creating merge request from commit! {e}",
+                tool_name="create_merge_request",
+                inputs={
+                    "commit_message": commit_message,
+                },
+            )
+        self.__last_merge_request_file_list = {}
