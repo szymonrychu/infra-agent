@@ -15,9 +15,6 @@ data:
   LOG_FORMAT: {{ .Values.settings.logFormat | quote }}
   GITLAB_URL: {{ .Values.settings.gitlab.url | quote }}
   GITLAB_HELMFILE_PROJECT_PATH: {{ .Values.settings.gitlab.helmfileProjectPath | quote }}
-  GITLAB_WEBHOOK_PROMPT_FORMAT: {{ .Values.settings.gitlab.webhookPromptFormat | quote }}
-  GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT: {{ .Values.settings.gitlab.webhookSystemPromptFormat | quote }}
-  GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT: {{ .Values.settings.gitlab.webhookFollowupPromptFormat | quote }}
   GRAFANA_URL: {{ .Values.settings.grafana.url | quote }}
   GRAFANA_ORG_ID: {{ .Values.settings.grafana.orgId | quote }}
   GRAFANA_PROMETHEUS_DATASOURCE_NAME: {{ .Values.settings.grafana.prometheusDatasourceName | quote }}

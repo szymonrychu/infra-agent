@@ -45,13 +45,11 @@ async def grafana_webhook(payload: GrafanaWebhookPayload) -> Response:
 
     prompt = settings.GRAFANA_WEBHOOK_PROMPT_FORMAT
     system_prompt = settings.GRAFANA_WEBHOOK_SYSTEM_PROMPT_FORMAT
-    follow_up_prompt = settings.GRAFANA_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
 
     messages = []
     result = await gpt_query(
         prompt,
         system_prompt,
-        follow_up_prompt,
         messages,
         model=settings.OPENAI_MODEL,
         alert_summaries=alert_summaries,

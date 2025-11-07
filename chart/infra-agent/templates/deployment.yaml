@@ -94,21 +94,6 @@ spec:
                 configMapKeyRef:
                   name: {{ include "infra-agent.fullname" . }}-config
                   key: GITLAB_HELMFILE_PROJECT_PATH
-            - name: GITLAB_WEBHOOK_PROMPT_FORMAT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "infra-agent.fullname" . }}-config
-                  key: GITLAB_WEBHOOK_PROMPT_FORMAT
-            - name: GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "infra-agent.fullname" . }}-config
-                  key: GITLAB_WEBHOOK_SYSTEM_PROMPT_FORMAT
-            - name: GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "infra-agent.fullname" . }}-config
-                  key: GITLAB_WEBHOOK_FOLLOWUP_PROMPT_FORMAT
             - name: GRAFANA_URL
               valueFrom:
                 configMapKeyRef:

@@ -121,25 +121,6 @@ You received the following Grafana alert(s):
 
 Begin by analyzing what they indicate about cluster state and what information you need next.
 """
-    GRAFANA_WEBHOOK_FOLLOWUP_PROMPT_FORMAT: str = """
-If the issue appears resolved and the alert condition no longer applies, call `{finish_function_name}` with solved=true.
-
-If more work is needed:
-- Continue reasoning step-by-step.
-- Use available tools to gather new information or apply fixes.
-- Do not repeat identical tool calls with the same parameters.
-- If you hit a limitation, note what tools would help, and then call `{finish_function_name}` with solved=false.
-
-If all options are exhausted and the alert cannot be resolved, finalize with:
-{{
-  "name": "{finish_function_name}",
-  "arguments": {{
-    "solved": false,
-    "explanation": "<brief summary>",
-    "missing_tools": ["<tool1>", "<tool2>"]
-  }}
-}}
-"""
 
     class Config:
         env_file = ".env"

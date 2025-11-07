@@ -173,45 +173,13 @@ async def get_cpu_usage_over(
     query_type: QueryType, hours: int, namespace: str, pod_name: str, container_name: str
 ) -> GrafanaNumericResult:
     metric = f'rate(container_cpu_usage_seconds_total{{namespace="{namespace}", pod="{pod_name}", container="{container_name}"}}[5m])'
-    return await _min_avg_max_over_time_query(
-        query_type,
-        metric,
-        hours,
-        "cpu",
-        PromptToolError(
-            message="Failed to query Prometheus for pod container CPU usage",
-            tool_name="get_cpu_usage_over",
-            inputs={
-                "query_type": query_type,
-                "hours": hours,
-                "pod_name": pod_name,
-                "namespace": namespace,
-                "container_name": container_name,
-            },
-        ),
-    )
+    return await _min_avg_max_over_time_query(query_type, metric, hours, "cpu")
 
 
 async def get_memory_usage_over(
     query_type: QueryType, hours: int, namespace: str, pod_name: str, container_name: str
 ) -> GrafanaNumericResult:
     metric = f'container_memory_usage_bytes{{namespace="{namespace}", pod="{pod_name}", container="{container_name}"}}'
-    ret = await _min_avg_max_over_time_query(
-        query_type,
-        metric,
-        hours,
-        "mb",
-        PromptToolError(
-            message="Failed to query Prometheus for pod container CPU usage",
-            tool_name="get_memory_usage_over",
-            inputs={
-                "query_type": query_type,
-                "hours": hours,
-                "namespace": namespace,
-                "pod_name": pod_name,
-                "container_name": container_name,
-            },
-        ),
-    )
+    ret = await _min_avg_max_over_time_query(query_type, metric, hours, "mb")
     ret.result = round(ret.result / 1024 / 1024)
     return ret

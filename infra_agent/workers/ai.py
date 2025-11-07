@@ -179,7 +179,6 @@ it's result was:
 async def gpt_query(
     prompt: str,
     system_prompt: str | None = None,
-    follow_up_prompt: str | None = None,
     messages: List[OpenAIMessage] = [],
     model: str = "gemini-2.5-flash",
     **kwargs: Any,
