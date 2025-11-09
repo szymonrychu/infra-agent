@@ -310,27 +310,13 @@ tools = [
     # ),
     OpenAITool(
         function=OpenAIFunction(
-            description="Allows to create merge request. IMPORTANT: `start_merge_request` tool must be run before running `add_file_to_merge_request` and `commit_and_push_merge_request`",
-            name="start_merge_request",
-            parameters=OpenAIToolParameter(
-                properties={
-                    "title": OpenAIToolParameterProperty(description="Title of the merge request"),
-                    "description": OpenAIToolParameterProperty(description="Description of the merge request"),
-                },
-                required=["title", "description"],
-            ),
-        ),
-        handler=_merge_request_factory.start_merge_request,
-    ),
-    OpenAITool(
-        function=OpenAIFunction(
-            description="Allows to add file update to merge request. Can be run multiple times to add multiple files in one commit. IMPORTANT: `add_file_to_merge_request` requires `start_merge_request` to be run first",
+            description="Allows to add file update to merge request. Can be run multiple times to add multiple files in one commit. IMPORTANT! Never guess file contents or their paths, use `get_pod_helm_release_metadata` to read current configuration!",
             name="add_file_to_merge_request",
             parameters=OpenAIToolParameter(
                 properties={
                     "file_path": OpenAIToolParameterProperty(description="Path of the file, that gets updated"),
                     "file_contents": OpenAIToolParameterProperty(
-                        description="New contents of the file thats being updated"
+                        description="New contents of the file thats being updated. IMPORTANT! Must contain the whole file after edits!"
                     ),
                 },
                 required=["file_path", "file_contents"],
@@ -340,17 +326,34 @@ tools = [
     ),
     OpenAITool(
         function=OpenAIFunction(
-            description="Allows to group file updates into commit, which then is pushed. IMPORTANT: `commit_and_push_merge_request` requires `start_merge_request` to be run once and `add_file_to_merge_request` to be run at least once!",
-            name="commit_and_push_merge_request",
+            description="Pushes previously added files as commit. IMPORTANT: `create_commit_in_branch` tool must be run after running `add_file_to_merge_request`",
+            name="create_commit_in_branch",
             parameters=OpenAIToolParameter(
                 properties={
-                    "commit_message": OpenAIToolParameterProperty(
-                        description="Message in a commit that's getting pushed to repository"
+                    "branch_name": OpenAIToolParameterProperty(
+                        description="Name of the branch to commit to. IMPORTANT: Use the same branch for all changes you do"
                     ),
+                    "commit_message": OpenAIToolParameterProperty(description="Meaningful commit name"),
                 },
-                required=["commit_message"],
+                required=["branch_name", "commit_message"],
             ),
         ),
-        handler=_merge_request_factory.commit_and_push_merge_request,
+        handler=_merge_request_factory.create_commit_in_branch,
+    ),
+    OpenAITool(
+        function=OpenAIFunction(
+            description="Creates merge request from previously created commits. Once tested, merge request will be automatically merged to repository! IMPORTANT: `create_merge_request` requires `add_file_to_merge_request` and `create_commit_in_branch` to be run at least once!",
+            name="create_merge_request",
+            parameters=OpenAIToolParameter(
+                properties={
+                    "title": OpenAIToolParameterProperty(description="Title of the merge request"),
+                    "description": OpenAIToolParameterProperty(
+                        description="Description of the merge request. IMPORTANT: Description must be meaningful also containing short summary of the alert that's being fixed"
+                    ),
+                },
+                required=["title", "description"],
+            ),
+        ),
+        handler=_merge_request_factory.create_merge_request,
     ),
 ]

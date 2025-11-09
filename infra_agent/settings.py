@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     OPENAI_API_RATE_LIMIT_TIMEWINDOW: int = 0
     GITLAB_URL: Union[str, URL] = "https://gitlab.com"
     GITLAB_TOKEN: str = ""
-    GITLAB_HELMFILE_PROJECT_PATH: str = "szymonrychu/helmfile"
+    GITLAB_HELMFILE_PROJECT_PATH: str = "test/helmfile"
     GRAFANA_URL: Union[AnyUrl, IPvAnyAddress] = IPv4Address("0.0.0.0")
     GRAFANA_API_KEY: str = ""
     GRAFANA_ORG_ID: int = 1
@@ -58,7 +58,9 @@ You have access to a set of diagnostic and remediation tools.
 You receive alerts from Grafana and must investigate, reason, and fix the underlying problem.
 Don't hasitate to update related configuration- use `get_pod_helm_release_metadata` to obtain current
 configuration from cluster and repository, use `create_merge_request` to commit, push and create merge-request.
-Important: NEVER provide updates to files you didn't receive from `get_pod_helm_release_metadata` function!
+Important:
+    - NEVER provide updates to files you didn't receive from `get_pod_helm_release_metadata` function!
+    - ALWAYS include the whole file in the commit and merge-request!
 If it's possible create merge request optimizing configuration.
 
 BEHAVIOR RULES (critical — follow precisely):

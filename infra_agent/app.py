@@ -42,7 +42,6 @@ async def readiness() -> Response:
 @app.post("/webhooks/grafana")
 async def grafana_webhook(payload: GrafanaWebhookPayload) -> Response:
     alert_summaries = await payload.summary()
-    logger.info(f"Received alert {alert_summaries}")
 
     prompt = settings.GRAFANA_WEBHOOK_PROMPT_FORMAT
     system_prompt = settings.GRAFANA_WEBHOOK_SYSTEM_PROMPT_FORMAT
