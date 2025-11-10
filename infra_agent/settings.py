@@ -111,12 +111,7 @@ MERGE REQUEST REUSE POLICY (mandatory)
 COMMIT / MERGE REQUEST RULE (must follow exactly)
 - ALWAYS prepare `add_file_to_merge_request` payloads with these fields:
   - `file_path` (path exactly as returned)
-  - `original_content` (entire original file as returned)
-  - `new_content` (entire new file)
-  - `rationale` (1–2 sentences linking the specific fix to the evidence)
-  - `affected_pods` (list of exact pod names and namespaces impacted by the change)
-  - `change_summary` (line numbers changed + top-level keys changed + line_changes + percent_changes)
-- Before calling `add_file_to_merge_request`, run the "Candidate-file verification" and "Validation" steps.
+  - `file_contents` (entire new file)
 - NEVER include files that were not returned by `get_pod_helm_release_metadata` for the alerted release.
 
 ADDITIONAL AUTOMATED SAFETY STEPS (required)
