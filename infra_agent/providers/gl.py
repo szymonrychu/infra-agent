@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Dict, List
 
 import gitlab
 
@@ -47,6 +47,29 @@ async def get_merge_request_details(mr_id: int) -> GitlabMergeRequest:
         target_branch=mr.target_branch,
         source_branch=mr.source_branch,
     )
+
+
+async def list_files_in_branch(branch: str, path: str = "") -> List[GitlabFile]:
+    """List files in repository for a given branch and path."""
+    project = gl.projects.get(settings.GITLAB_HELMFILE_PROJECT_PATH)
+    files = project.repository_tree(path=path, ref=branch, all=True, recursive=True)
+    result = []
+    for f in files:
+        result.append(
+            GitlabFile(
+                file_path=f.get("path", ""),
+                file_name=f.get("name", ""),
+                size=f.get("size", None),
+                encoding=None,
+                content=None,
+                ref=branch,
+                blob_id=f.get("id", None),
+                commit_id=None,
+                last_commit_id=None,
+                execute_filemode=f.get("mode", None) == "100755",
+            )
+        )
+    return result
 
 
 async def update_file_and_push(branch: str, file_path: str, content: str, commit_message: str) -> GitlabCommit:
@@ -111,7 +134,7 @@ async def create_merge_request(
         )
     mr_target_branch_name = "main"
     project = gl.projects.get(settings.GITLAB_HELMFILE_PROJECT_PATH)
-    existing_files = [f.file_path for f in await list_files_in_repository("main")]
+    existing_files = [f.file_path for f in await list_files_in_branch("main")]
     commit_actions = []
     for file_path, file_contents in files_updated.items():
         commit_actions.append(
@@ -177,7 +200,7 @@ async def approve_merge_request(mr_id: int) -> bool:
     return True
 
 
-async def get_file_contents(branch: str, file_path: str) -> GitlabFile:
+async def get_file_contents(branch: str, file_path: str = "") -> GitlabFile:
     """Get file contents from repository, branch, and path."""
     project = gl.projects.get(settings.GITLAB_HELMFILE_PROJECT_PATH)
     file = project.files.get(file_path=file_path, ref=branch)
@@ -195,27 +218,14 @@ async def get_file_contents(branch: str, file_path: str) -> GitlabFile:
     )
 
 
-async def list_files_in_repository(branch: str, path: str = "") -> List[GitlabFile]:
+async def list_files_in_merge_request(merge_request_id: int) -> Dict[str, str]:
     """List files in repository for a given branch and path."""
-    project = gl.projects.get(settings.GITLAB_HELMFILE_PROJECT_PATH)
-    files = project.repository_tree(path=path, ref=branch, all=True, recursive=True)
-    result = []
-    for f in files:
-        result.append(
-            GitlabFile(
-                file_path=f.get("path", ""),
-                file_name=f.get("name", ""),
-                size=f.get("size", None),
-                encoding=None,
-                content=None,
-                ref=branch,
-                blob_id=f.get("id", None),
-                commit_id=None,
-                last_commit_id=None,
-                execute_filemode=f.get("mode", None) == "100755",
-            )
-        )
-    return result
+    mr = await get_merge_request_details(merge_request_id)
+    files = {}
+    for f in await list_files_in_branch(mr.source_branch):
+        gl_file = await get_file_contents(mr.source_branch)
+        files[f.file_path] = gl_file.content
+    return files
 
 
 class GitlabMergeRequestFactory:
@@ -241,12 +251,12 @@ class GitlabMergeRequestFactory:
         existing_files = []
         for f in self._project.repository_tree(ref=self._source_branch, all=True, recursive=True):
             path = f.get("path", None)
-            if path:
+            if path and path not in existing_files:
                 existing_files.append(path)
         if not new_branch:
             for f in self._project.repository_tree(ref=branch_name, all=True, recursive=True):
                 path = f.get("path", None)
-                if path:
+                if path and path not in existing_files:
                     existing_files.append(path)
 
         commit_actions = []

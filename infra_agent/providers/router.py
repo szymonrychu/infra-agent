@@ -9,7 +9,11 @@ from infra_agent.models.ai import (
     OpenAIToolParameterPropertyItems,
 )
 from infra_agent.models.generic import PromptToolError
-from infra_agent.providers.gl import GitlabMergeRequestFactory
+from infra_agent.providers.gl import (
+    GitlabMergeRequestFactory,
+    list_files_in_merge_request,
+    list_opened_merge_requests,
+)
 from infra_agent.providers.grafana import (
     QueryType,
     get_cpu_usage_over,
@@ -308,6 +312,26 @@ tools = [
     #     ),
     #     handler=create_merge_request,
     # ),
+    OpenAITool(
+        function=OpenAIFunction(description="Lists all opened merge requests", name="list_opened_merge_requests"),
+        handler=list_opened_merge_requests,
+    ),
+    OpenAITool(
+        function=OpenAIFunction(
+            description="Lists all opened merge requests",
+            name="list_files_in_merge_request",
+            parameters=OpenAIToolParameter(
+                properties={
+                    "merge_request_id": OpenAIToolParameterProperty(
+                        description="Merge request id (one from the list provided by `list_opened_merge_requests` tool)",
+                        type="integer",
+                    ),
+                },
+                required=["merge_request_id"],
+            ),
+        ),
+        handler=list_files_in_merge_request,
+    ),
     OpenAITool(
         function=OpenAIFunction(
             description="Allows to add file update to merge request. Can be run multiple times to add multiple files in one commit. IMPORTANT! Never guess file contents or their paths, use `get_pod_helm_release_metadata` to read current configuration!",
