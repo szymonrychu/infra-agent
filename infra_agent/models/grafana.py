@@ -1,61 +1,39 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from infra_agent.models.generic import InfraAgentBaseModel
 
 
 class Alert(InfraAgentBaseModel):
-    status: str
+    # status: str
     labels: Dict[str, str]
     annotations: Dict[str, str]
-    starts_at: datetime = Field(alias="startsAt")
-    ends_at: datetime = Field(alias="endsAt")
+    # starts_at: datetime = Field(alias="startsAt")
+    # ends_at: datetime = Field(alias="endsAt")
     # can be a relative query string like "?orgId=1"
-    generator_url: str = Field(alias="generatorURL")
-    fingerprint: str
-    silence_url: str = Field(alias="silenceURL")
-    dashboard_url: Optional[str] = Field(None, alias="dashboardURL")
-    panel_url: Optional[str] = Field(None, alias="panelURL")
-    values: Dict[str, float] = Field(default_factory=dict)
-    value_string: Optional[str] = Field(None, alias="valueString")
-    org_id: Optional[int] = Field(None, alias="orgId")
-
-
-class GrafanaAlertsSumary(InfraAgentBaseModel):
-    description: str | None = None
-    summary: str | None = None
-    labels: Dict[str, str] | None = None
-    values: Dict[str, float] | None = None
+    # silence_url: str = Field(alias="silenceURL")
+    # dashboard_url: Optional[str] = Field(None, alias="dashboardURL")
+    # panel_url: Optional[str] = Field(None, alias="panelURL")
+    values: Dict[str, Any] = Field(default_factory=dict)
 
 
 class GrafanaWebhookPayload(InfraAgentBaseModel):
     receiver: str
     status: str
-    org_id: int = Field(alias="orgId")
+    # org_id: int = Field(alias="orgId")
     alerts: List[Alert]
     group_labels: Dict[str, str] = Field(default_factory=dict, alias="groupLabels")
     common_labels: Dict[str, str] = Field(alias="commonLabels")
     common_annotations: Dict[str, str] = Field(default_factory=dict, alias="commonAnnotations")
-    external_url: HttpUrl = Field(alias="externalURL")
-    version: str
-    group_key: str = Field(alias="groupKey")
-    truncated_alerts: int = Field(alias="truncatedAlerts")
+    # external_url: HttpUrl = Field(alias="externalURL")
+    # version: str
+    # group_key: str = Field(alias="groupKey")
+    # truncated_alerts: int = Field(alias="truncatedAlerts")
     title: str
-    state: str
+    # state: str
     message: str
-
-    async def summary(self) -> List[dict]:
-        return [
-            GrafanaAlertsSumary(
-                description=alert.annotations.get("description", ""),
-                summary=alert.annotations.get("summary", ""),
-                values=alert.values,
-                labels=alert.labels,
-            ).model_dump(exclude_none=True)
-            for alert in self.alerts
-        ]
 
 
 class GrafanaDatasource(InfraAgentBaseModel):
