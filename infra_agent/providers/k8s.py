@@ -20,7 +20,7 @@ from infra_agent.models.k8s import (
     Node,
     Pod,
 )
-from infra_agent.providers.gl import get_file_contents, list_files_in_repository
+from infra_agent.providers.gl import get_file_contents, list_files_in_branch
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +451,7 @@ async def get_helm_release_definition(namespace: str, pod_name: str) -> HelmRele
                         f"helmfiles/[a-z0-9_-]+/values/{metadata['name']}/[a-z0-9_-]+.secrets.yaml",
                     ]
                     values_yaml = {}
-                    data = await list_files_in_repository("main")
+                    data = await list_files_in_branch("main")
                     for file_path in [
                         f.file_path for f in data if any([match(m, f.file_path) for m in release_definition_file_paths])
                     ]:
