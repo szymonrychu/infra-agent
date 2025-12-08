@@ -137,4 +137,4 @@ jobs:
             --app-version ${{ steps.prep.outputs.container_version }} \
             -u -d ./ "./chart/${CHART_NAME}"
 
-          helm push "${CHART_NAME}-${VERSION}.tgz" "oci://${HARBOR_URL}/charts"
+          helm push "${CHART_NAME}-${{ steps.prep.outputs.chart_version }}.tgz" "oci://${HARBOR_URL}/charts"
