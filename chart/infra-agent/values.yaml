@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.gitlab.com/szymonrychu/containers/infra-agent
+  repository: harbor.szymonrichert.pl/containers/infra-agent
   pullPolicy: IfNotPresent
   tag: ""
 
